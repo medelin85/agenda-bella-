@@ -52,7 +52,7 @@ python -m pytest -v --junitxml=test-results.xml
 pip-audit -r requirements.txt
 ```
 
-Os testes usam banco temporário e dados fictícios. Veja `docs/TESTES.md` para limites e roteiro de validação humana. O arquivo `.github/workflows/ci.yml` executa testes e auditoria em pushes e Pull Requests. Só será possível comprovar uma execução de CI após publicar no GitHub e consultar seu resultado em Actions.
+Os testes usam banco temporário e dados fictícios. Veja `docs/TESTES.md` para limites e roteiro de validação humana. O arquivo `.github/workflows/ci.yml` executa testes e auditoria em pushes e Pull Requests. A execução inicial da CI foi aprovada no GitHub Actions: https://github.com/medelin85/agenda-bella-/actions/runs/43713980133 . A suíte ampliada contém 27 casos, incluindo regressões de cancelamento de atendimento pago, conclusão futura, limite final do período financeiro e data inválida. Cada novo commit deve ter seu resultado próprio conferido em Actions.
 
 ## Implantação Linux
 
@@ -74,4 +74,9 @@ Agende diariamente, copie para armazenamento privado fora do servidor e teste a 
 
 ## GitHub e Pull Request
 
-O repositório de destino informado é https://github.com/medelin85/agenda-bella- . Consulte `docs/GITHUB.md`. O código local e a configuração de CI não são, por si, prova de publicação, revisão por PR ou validação de campo.
+Repositório público: https://github.com/medelin85/agenda-bella- .
+
+Implementação integrada à branch principal pelo PR #1: https://github.com/medelin85/agenda-bella-/pull/1 . A revisão registrada foi assistida por IA, sem representar aprovação independente de outra pessoa. Consulte `docs/GITHUB.md` para o procedimento de futuras alterações.
+
+As duas rodadas de validação externa, avaliação visual, acessibilidade e desempenho móvel ainda precisam ser realizadas e documentadas. Preencha `docs/VALIDACAO_CAMPO.md` somente com observações e feedbacks efetivamente coletados.
+
