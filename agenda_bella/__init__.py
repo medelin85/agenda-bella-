@@ -17,7 +17,7 @@ from . import services
 
 def create_app(config=None):
     app = Flask(__name__, instance_relative_config=True)
-    app.config.from_mapping(SECRET_KEY=os.environ.get('SECRET_KEY'), DATABASE=os.environ.get('DATABASE', str(Path(app.instance_path)/'agenda.sqlite')), SESSION_COOKIE_SECURE=True, SESSION_COOKIE_HTTPONLY=True, SESSION_COOKIE_SAMESITE='Lax', MAX_CONTENT_LENGTH=65536)
+    app.config.from_mapping(DEMO_MODE=os.environ.get('DEMO_MODE')=='true', SECRET_KEY=os.environ.get('SECRET_KEY'), DATABASE=os.environ.get('DATABASE', str(Path(app.instance_path)/'agenda.sqlite')), SESSION_COOKIE_SECURE=True, SESSION_COOKIE_HTTPONLY=True, SESSION_COOKIE_SAMESITE='Lax', MAX_CONTENT_LENGTH=65536)
     if config:
         app.config.update(config)
     if not app.config['SECRET_KEY']:
@@ -32,6 +32,7 @@ def create_app(config=None):
 
     @app.before_request
     def identify():
+        g.request_started = time.monotonic()
         g.user = None
         if session.get('uid'):
             user = get_db().execute('SELECT * FROM users WHERE id=?',(session['uid'],)).fetchone()
@@ -51,8 +52,18 @@ def create_app(config=None):
             return fn(*args,**kwargs)
         return wrapper
 
+    @app.get('/health')
+    def health():
+        try:
+            get_db().execute('SELECT id FROM users LIMIT 1').fetchone()
+        except sqlite3.Error:
+            return {'status': 'unavailable'}, 503
+        return {'status': 'ok'}, 200
+
     @app.after_request
     def headers(response):
+        elapsed = (time.monotonic() - getattr(g, 'request_started', time.monotonic())) * 1000
+        app.logger.warning('request endpoint=%s status=%s duration_ms=%.1f', request.endpoint or 'unknown', response.status_code, elapsed)
         response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'"
         response.headers['X-Content-Type-Options']='nosniff'
         response.headers['Referrer-Policy']='same-origin'
