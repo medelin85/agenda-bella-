@@ -1,0 +1,28 @@
+# Demonstração gratuita: dados temporários, não usar dados reais.
+services:
+  - type: web
+    name: agenda-bella
+    runtime: python
+    plan: free
+    region: oregon
+    branch: deploy/render-producao
+    buildCommand: pip install -r requirements.txt
+    startCommand: sh start_production.sh
+    healthCheckPath: /health
+    numInstances: 1
+    autoDeployTrigger: "off"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.14
+      - key: DEMO_MODE
+        value: "true"
+      - key: TZ
+        value: America/Sao_Paulo
+      - key: DATABASE
+        value: /tmp/agenda-bella/agenda.sqlite
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ADMIN_LOGIN
+        value: responsavel
+      - key: ADMIN_PASSWORD
+        sync: false

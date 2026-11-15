@@ -5,3 +5,7 @@ instance/
 *.sqlite*
 .env
 *.pyc
+
+.coverage
+htmlcov/
+coverage.json
